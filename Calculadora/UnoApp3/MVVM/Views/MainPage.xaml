@@ -54,14 +54,14 @@
             <Button VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="2" Background="Transparent" Grid.Column="5" Content="M" />
         </Grid>
         
-        <Button Opacity="0.6" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="2" Grid.Row="2" Grid.Column="0" Content="%" />
+        <Button Opacity="0.6" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="2" Grid.Row="2" Grid.Column="0" Content="%" Command="{Binding PercentCommand}" />
         <Button Opacity="0.6" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="2" Grid.Row="2" Grid.Column="1" Content="CE" Command="{Binding ClearNumberCommand}" />
         <Button Opacity="0.6" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="2" Grid.Row="2" Grid.Column="2" Content="C" Command="{Binding ClearAllCommand}" />
         <Button Opacity="0.6" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="2" Grid.Row="2" Grid.Column="3" Content="Clear" Command="{Binding RemoveDigitCommand}" />
 
-        <Button Opacity="0.6" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="2" Grid.Row="3" Grid.Column="0" Content="1/x" />
+        <Button Opacity="0.6" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="2" Grid.Row="3" Grid.Column="0" Content="1/x" Command="{Binding OneOverXCommand}" />
         <Button Opacity="0.6" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="2" Grid.Row="3" Grid.Column="1" Content="x^2" Command="{Binding SquareCommand}" CommandParameter="2" />
-        <Button Opacity="0.6" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="2" Grid.Row="3" Grid.Column="2" Content="_/¯¯" />
+        <Button Opacity="0.6" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="2" Grid.Row="3" Grid.Column="2" Content="√" Command="{Binding SquareRootCommand}" />
         <Button Opacity="0.6" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="2" Grid.Row="3" Grid.Column="3" Content="x/y"  Command="{Binding OperationCommand}" CommandParameter="/" />
 
         <Button VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="2" Grid.Row="4" Grid.Column="0" Content="7" Command="{Binding AddNumberCommand}" CommandParameter="7" />

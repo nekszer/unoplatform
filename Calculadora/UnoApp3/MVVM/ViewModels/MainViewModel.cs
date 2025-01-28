@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -9,14 +8,14 @@ public partial class MainViewModel : ObservableObject
     private string _number = "0";
 
     [ObservableProperty]
-    private string _operations = "";
+    private string _operations = string.Empty;
 
     private OperationType LastOperation { get; set; }
-    private OperationType CurrentOperation { get; set; }
     private double PreviousNumber { get; set; }
     private bool Reset { get; set; }
 
-    private string LastOperator = "";
+    private string LastOperator = string.Empty;
+
 
     [RelayCommand]
     private void Operation(string @operator)
@@ -24,14 +23,15 @@ public partial class MainViewModel : ObservableObject
         if (!double.TryParse(Number, out double result))
             return;
 
-        LastOperation = CurrentOperation;
-        CurrentOperation = OperationType.X_Y;
-
         var currentOperator = @operator;
-        if (LastOperator != @operator)
-            currentOperator = LastOperator;
+        if (!string.IsNullOrEmpty(LastOperator))
+        {
+            if (LastOperator != @operator)
+                currentOperator = LastOperator;
+        }
 
         Operations = $"{result} {currentOperator}";
+
 
         if (Reset)
         {
@@ -43,9 +43,21 @@ public partial class MainViewModel : ObservableObject
         var previous = PreviousNumber;
         if (previous != 0)
         {
-            PreviousNumber = Operate(previous, result, currentOperator);
-            Number = GetNumberString(PreviousNumber.ToString());
-            Operations = $"{PreviousNumber} {@operator}";
+            try
+            {
+                PreviousNumber = Operate(previous, result, currentOperator);
+                Number = GetNumberString(PreviousNumber.ToString());
+                Operations = $"{PreviousNumber} {@operator}";
+            }
+            catch (Exception ex)
+            {
+                Number = ex.Message;
+                Operations = string.Empty;
+                PreviousNumber = 0;
+                Reset = true;
+                LastOperator = string.Empty;
+                SetLastOperation(OperationType.Result);
+            }
         }
         else
         {
@@ -54,6 +66,8 @@ public partial class MainViewModel : ObservableObject
 
         LastOperator = @operator;
         Reset = true;
+
+        SetLastOperation(OperationType.X_Y);
     }
 
     private double Operate(double previous, double result, string @operator)
@@ -61,14 +75,19 @@ public partial class MainViewModel : ObservableObject
         if (@operator == "+")
             return previous + result;
 
-        if(@operator == "-")
+        if (@operator == "-")
             return previous - result;
 
-        if(@operator == "x") 
+        if (@operator == "x")
             return previous * result;
 
-        if(@operator == "/")
+        if (@operator == "/")
+        {
+            if (result == 0)
+                throw new InvalidOperationException("Error, no se puede dividir entre 0");
+
             return previous / result;
+        }
 
         return 0;
     }
@@ -79,31 +98,36 @@ public partial class MainViewModel : ObservableObject
         if (!double.TryParse(Number, out double result))
             return;
 
-        LastOperation = CurrentOperation;
-        CurrentOperation = OperationType.Result;
         Operations = $"sqr({result})";
         var finalResult = result * result;
         PreviousNumber = finalResult;
         Number = GetNumberString(PreviousNumber.ToString());
         Reset = true;
+
+        SetLastOperation(OperationType.Result);
     }
+
+    private double LastValue { get; set; }
 
     [RelayCommand]
     private void Result()
     {
         if (!double.TryParse(Number, out double result))
             return;
-
-        LastOperation = CurrentOperation;
-        CurrentOperation = OperationType.Result;
-
+        
         var previous = PreviousNumber;
-        Operations = $"{Operations} {result} = ";
-
+        Operations = $"{previous} {LastOperator} {result} = ";
         var finalResult = Operate(previous, result, LastOperator);
         PreviousNumber = finalResult;
         Number = GetNumberString(finalResult.ToString());
         Reset = true;
+
+        SetLastOperation(OperationType.Result);
+    }
+
+    private void SetLastOperation(OperationType operationType)
+    {
+        LastOperation = operationType;
     }
 
     [RelayCommand]
@@ -153,13 +177,13 @@ public partial class MainViewModel : ObservableObject
         Reset = true;
         Number = "0";
 
-        if (CurrentOperation != OperationType.Result)
+        if (LastOperation != OperationType.Result)
             return;
 
         Operations = " ";
         PreviousNumber = 0;
-        LastOperation = OperationType.Result;
-        CurrentOperation = OperationType.Result;
+
+        SetLastOperation(OperationType.Result);
     }
 
     [RelayCommand]
@@ -170,8 +194,8 @@ public partial class MainViewModel : ObservableObject
 
         Operations = " ";
         PreviousNumber = 0;
-        LastOperation = OperationType.Result;
-        CurrentOperation = OperationType.Result;
+
+        SetLastOperation(OperationType.Result);
     }
 
     [RelayCommand]
@@ -194,6 +218,51 @@ public partial class MainViewModel : ObservableObject
             return;
 
         Number += ".";
+    }
+
+    [RelayCommand]
+    private void Percent()
+    {
+        if (!double.TryParse(Number, out double number))
+            return;
+
+        var result = number / 10;
+        Number = GetNumberString(result.ToString());
+
+        LastOperator = string.Empty;
+        SetLastOperation(OperationType.Result);
+    }
+
+    [RelayCommand]
+    private void OneOverX()
+    {
+        if (!double.TryParse(Number, out double number))
+            return;
+
+        if(number == 0) 
+            return;
+
+        var result = 1D / number;
+        Number = GetNumberString(result.ToString());
+        Operations = $" 1/{number} = ";
+
+        LastOperator = string.Empty;
+        SetLastOperation(OperationType.Result);
+    }
+
+    [RelayCommand]
+    private void SquareRoot()
+    {
+        if (!double.TryParse(Number, out double number))
+            return;
+
+        var result = Math.Sqrt(number);
+        Number = GetNumberString(result.ToString());
+
+        Operations = $" √{number} = ";
+
+        LastOperator = string.Empty;
+        SetLastOperation(OperationType.Result);
     }
 
     private enum OperationType
